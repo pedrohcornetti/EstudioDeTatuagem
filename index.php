@@ -21,7 +21,7 @@ $conn = conectar();
                 <?php
                 $clientes = getClientes($conn);
                 if ($clientes !== null) {
-                    foreach ($clientes como $cliente): ?>
+                    foreach ($clientes as $cliente): ?>
                         <li class="list-group-item">
                             <?php echo $cliente['nome']; ?> - <?php echo $cliente['telefone']; ?> - <?php echo $cliente['email']; ?>
                         </li>
@@ -56,7 +56,7 @@ $conn = conectar();
                 <?php
                 $artistas = getArtistas($conn);
                 if ($artistas !== null) {
-                    foreach ($artistas como $artista): ?>
+                    foreach ($artistas as $artista): ?>
                         <li class="list-group-item">
                             <?php echo $artista['nome']; ?> - <?php echo $artista['especialidade']; ?> - <?php echo $artista['portfolio']; ?>
                         </li>
@@ -91,7 +91,7 @@ $conn = conectar();
                 <?php
                 $sessoes = getSessoes($conn);
                 if ($sessoes !== null) {
-                    foreach ($sessoes como $sessao): ?>
+                    foreach ($sessoes as $sessao): ?>
                         <li class="list-group-item">
                             Cliente ID: <?php echo $sessao['cliente_id']; ?> - Data: <?php echo $sessao['data']; ?> - Hora: <?php echo $sessao['hora']; ?>
                         </li>
@@ -106,56 +106,4 @@ $conn = conectar();
                 <div class="form-group">
                     <label>Cliente ID:</label>
                     <input type="number" name="cliente_id" class="form-control" required>
-                </div>
-                <div class="form-group">
-                    <label>Data:</label>
-                    <input type="date" name="data" class="form-control" required>
-                </div>
-                <div class="form-group">
-                    <label>Hora:</label>
-                    <input type="time" name="hora" class="form-control" required>
-                </div>
-                <input type="submit" value="Adicionar" class="btn btn-primary">
-            </form>
-        </section>
-
-        <!-- Gerenciamento de Desenhos -->
-        <section>
-            <h2 class="mt-4">Desenhos</h2>
-            <ul class="list-group">
-                <?php
-                $desenhos = getDesenhos($conn);
-                if ($desenhos !== null) {
-                    foreach ($desenhos como $desenho): ?>
-                        <li class="list-group-item">
-                            Sessão ID: <?php echo $desenho['sessao_id']; ?> - Nome: <?php echo $desenho['nome']; ?> - Descrição: <?php echo $desenho['descricao']; ?>
-                        </li>
-                    <?php endforeach;
-                } else {
-                    echo "<li class='list-group-item'>Nenhum desenho encontrado.</li>";
-                }
-                ?>
-            </ul>
-            <form method="post" action="adicionar_desenho.php" class="mt-3">
-                <h3>Adicionar Desenho</h3>
-                <div class="form-group">
-                    <label>Sessão ID:</label>
-                    <input type="number" name="sessao_id" class="form-control" required>
-                </div>
-                <div class="form-group">
-                    <label>Nome:</label>
-                    <input type="text" name="nome" class="form-control" required>
-                </div>
-                <div class="form-group">
-                    <label>Descrição:</label>
-                    <textarea name="descricao" class="form-control" required></textarea>
-                </div>
-                <input type="submit" value="Adicionar" class="btn btn-primary">
-            </form>
-        </section>
-    </div>
-
-    <!-- Incluindo rodapé -->
-    <?php include 'rodape.html'; ?>
-</body>
-</html>
+                <
