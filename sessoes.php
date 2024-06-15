@@ -17,81 +17,85 @@ if (isset($_POST['update_id'])) {
 if (isset($_POST['add_sessao'])) {
     addSessao($conn, $_POST['cliente_id'], $_POST['data'], $_POST['hora']);
 }
+
+// Busca as sessões para exibir na tabela
+$sessoes = getSessoes($conn);
 ?>
 
-<section>
-    <h2>Sessões</h2>
-    <ul class="list-group">
-        <?php
-        $sessoes = getSessoes($conn);
-        if ($sessoes !== null) {
-            foreach ($sessoes as $sessao): ?>
-                <li class="list-group-item">
-                    Cliente ID: <?php echo $sessao['cliente_id']; ?> - Data: <?php echo $sessao['data']; ?> - Hora: <?php echo $sessao['hora']; ?>
-                    <form method="post" class="float-right">
+<div class="container">
+    <h2 class="my-4">Sessões</h2>
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Cliente ID</th>
+                <th>Data</th>
+                <th>Hora</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($sessoes as $sessao) { ?>
+            <tr>
+                <td><?php echo $sessao['id']; ?></td>
+                <td><?php echo $sessao['cliente_id']; ?></td>
+                <td><?php echo $sessao['data']; ?></td>
+                <td><?php echo $sessao['hora']; ?></td>
+                <td>
+                    <form method="post" style="display:inline;">
                         <input type="hidden" name="delete_id" value="<?php echo $sessao['id']; ?>">
-                        <button type="submit" class="btn btn-danger btn-sm">Excluir</button>
+                        <button type="submit" class="btn btn-danger btn-sm">Deletar</button>
                     </form>
-                    <button class="btn btn-secondary btn-sm float-right mr-2" data-toggle="modal" data-target="#updateModal<?php echo $sessao['id']; ?>">Editar</button>
+                    <form method="post" style="display:inline;">
+                        <input type="hidden" name="edit_id" value="<?php echo $sessao['id']; ?>">
+                        <button type="submit" class="btn btn-warning btn-sm">Editar</button>
+                    </form>
+                </td>
+            </tr>
+            <?php } ?>
+        </tbody>
+    </table>
 
-                    <!-- Modal de Edição -->
-                    <div class="modal fade" id="updateModal<?php echo $sessao['id']; ?>" tabindex="-1" role="dialog" aria-labelledby="updateModalLabel<?php echo $sessao['id']; ?>" aria-hidden="true">
-                        <div class="modal-dialog" role="document">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="updateModalLabel<?php echo $sessao['id']; ?>">Editar Sessão</h5>
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                </div>
-                                <form method="post">
-                                    <div class="modal-body">
-                                        <input type="hidden" name="update_id" value="<?php echo $sessao['id']; ?>">
-                                        <div class="form-group">
-                                            <label>Cliente ID:</label>
-                                            <input type="number" name="cliente_id" class="form-control" value="<?php echo $sessao['cliente_id']; ?>" required>
-                                        </div>
-                                        <div class="form-group">
-                                            <label>Data:</label>
-                                            <input type="date" name="data" class="form-control" value="<?php echo $sessao['data']; ?>" required>
-                                        </div>
-                                        <div class="form-group">
-                                            <label>Hora:</label>
-                                            <input type="time" name="hora" class="form-control" value="<?php echo $sessao['hora']; ?>" required>
-                                        </div>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
-                                        <button type="submit" class="btn btn-primary">Salvar mudanças</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </li>
-            <?php endforeach;
-        } else {
-            echo "<li class='list-group-item'>Nenhuma sessão encontrada.</li>";
-        }
-        ?>
-    </ul>
-
-    <form method="post" class="mt-3">
-        <h3>Adicionar Sessão</h3>
+    <h2 class="my-4">Adicionar Sessão</h2>
+    <form method="post" class="form-inline">
         <div class="form-group">
-            <label>Cliente ID:</label>
-            <input type="number" name="cliente_id" class="form-control" required>
+            <label for="cliente_id">Cliente ID:</label>
+            <input type="text" class="form-control mx-2" name="cliente_id" required>
         </div>
         <div class="form-group">
-            <label>Data:</label>
-            <input type="date" name="data" class="form-control" required>
+            <label for="data">Data:</label>
+            <input type="date" class="form-control mx-2" name="data" required>
         </div>
         <div class="form-group">
-            <label>Hora:</label>
-            <input type="time" name="hora" class="form-control" required>
+            <label for="hora">Hora:</label>
+            <input type="time" class="form-control mx-2" name="hora" required>
         </div>
-        <input type="submit" name="add_sessao" value="Adicionar" class="btn btn-primary">
+        <input type="hidden" name="add_sessao" value="1">
+        <button type="submit" class="btn btn-primary">Adicionar</button>
     </form>
-</section>
+
+    <?php
+    if (isset($_POST['edit_id'])) {
+        $sessao = getSessao($conn, $_POST['edit_id']);
+    ?>
+    <h2 class="my-4">Editar Sessão</h2>
+    <form method="post" class="form-inline">
+        <input type="hidden" name="update_id" value="<?php echo $sessao['id']; ?>">
+        <div class="form-group">
+            <label for="cliente_id">Cliente ID:</label>
+            <input type="text" class="form-control mx-2" name="cliente_id" value="<?php echo $sessao['cliente_id']; ?>" required>
+        </div>
+        <div class="form-group">
+            <label for="data">Data:</label>
+            <input type="date" class="form-control mx-2" name="data" value="<?php echo $sessao['data']; ?>" required>
+        </div>
+        <div class="form-group">
+            <label for="hora">Hora:</label>
+            <input type="time" class="form-control mx-2" name="hora" value="<?php echo $sessao['hora']; ?>" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Salvar</button>
+    </form>
+    <?php } ?>
+</div>
 
 <?php include 'rodape.html'; ?>

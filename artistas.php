@@ -17,81 +17,85 @@ if (isset($_POST['update_id'])) {
 if (isset($_POST['add_artista'])) {
     addArtista($conn, $_POST['nome'], $_POST['especialidade'], $_POST['portfolio']);
 }
+
+// Busca os artistas para exibir na tabela
+$artistas = getArtistas($conn);
 ?>
 
-<section>
-    <h2>Artistas</h2>
-    <ul class="list-group">
-        <?php
-        $artistas = getArtistas($conn);
-        if ($artistas !== null) {
-            foreach ($artistas as $artista): ?>
-                <li class="list-group-item">
-                    <?php echo $artista['nome']; ?> - <?php echo $artista['especialidade']; ?> - <?php echo $artista['portfolio']; ?>
-                    <form method="post" class="float-right">
+<div class="container">
+    <h2 class="my-4">Artistas</h2>
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Especialidade</th>
+                <th>Portfolio</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($artistas as $artista) { ?>
+            <tr>
+                <td><?php echo $artista['id']; ?></td>
+                <td><?php echo $artista['nome']; ?></td>
+                <td><?php echo $artista['especialidade']; ?></td>
+                <td><?php echo $artista['portfolio']; ?></td>
+                <td>
+                    <form method="post" style="display:inline;">
                         <input type="hidden" name="delete_id" value="<?php echo $artista['id']; ?>">
-                        <button type="submit" class="btn btn-danger btn-sm">Excluir</button>
+                        <button type="submit" class="btn btn-danger btn-sm">Deletar</button>
                     </form>
-                    <button class="btn btn-secondary btn-sm float-right mr-2" data-toggle="modal" data-target="#updateModal<?php echo $artista['id']; ?>">Editar</button>
+                    <form method="post" style="display:inline;">
+                        <input type="hidden" name="edit_id" value="<?php echo $artista['id']; ?>">
+                        <button type="submit" class="btn btn-warning btn-sm">Editar</button>
+                    </form>
+                </td>
+            </tr>
+            <?php } ?>
+        </tbody>
+    </table>
 
-                    <!-- Modal de Edição -->
-                    <div class="modal fade" id="updateModal<?php echo $artista['id']; ?>" tabindex="-1" role="dialog" aria-labelledby="updateModalLabel<?php echo $artista['id']; ?>" aria-hidden="true">
-                        <div class="modal-dialog" role="document">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="updateModalLabel<?php echo $artista['id']; ?>">Editar Artista</h5>
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                </div>
-                                <form method="post">
-                                    <div class="modal-body">
-                                        <input type="hidden" name="update_id" value="<?php echo $artista['id']; ?>">
-                                        <div class="form-group">
-                                            <label>Nome:</label>
-                                            <input type="text" name="nome" class="form-control" value="<?php echo $artista['nome']; ?>" required>
-                                        </div>
-                                        <div class="form-group">
-                                            <label>Especialidade:</label>
-                                            <input type="text" name="especialidade" class="form-control" value="<?php echo $artista['especialidade']; ?>" required>
-                                        </div>
-                                        <div class="form-group">
-                                            <label>Portfolio:</label>
-                                            <textarea name="portfolio" class="form-control" required><?php echo $artista['portfolio']; ?></textarea>
-                                        </div>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
-                                        <button type="submit" class="btn btn-primary">Salvar mudanças</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </li>
-            <?php endforeach;
-        } else {
-            echo "<li class='list-group-item'>Nenhum artista encontrado.</li>";
-        }
-        ?>
-    </ul>
-
-    <form method="post" class="mt-3">
-        <h3>Adicionar Artista</h3>
+    <h2 class="my-4">Adicionar Artista</h2>
+    <form method="post" class="form-inline">
         <div class="form-group">
-            <label>Nome:</label>
-            <input type="text" name="nome" class="form-control" required>
+            <label for="nome">Nome:</label>
+            <input type="text" class="form-control mx-2" name="nome" required>
         </div>
         <div class="form-group">
-            <label>Especialidade:</label>
-            <input type="text" name="especialidade" class="form-control" required>
+            <label for="especialidade">Especialidade:</label>
+            <input type="text" class="form-control mx-2" name="especialidade" required>
         </div>
         <div class="form-group">
-            <label>Portfolio:</label>
-            <textarea name="portfolio" class="form-control" required></textarea>
+            <label for="portfolio">Portfolio:</label>
+            <input type="text" class="form-control mx-2" name="portfolio" required>
         </div>
-        <input type="submit" name="add_artista" value="Adicionar" class="btn btn-primary">
+        <input type="hidden" name="add_artista" value="1">
+        <button type="submit" class="btn btn-primary">Adicionar</button>
     </form>
-</section>
+
+    <?php
+    if (isset($_POST['edit_id'])) {
+        $artista = getArtista($conn, $_POST['edit_id']);
+    ?>
+    <h2 class="my-4">Editar Artista</h2>
+    <form method="post" class="form-inline">
+        <input type="hidden" name="update_id" value="<?php echo $artista['id']; ?>">
+        <div class="form-group">
+            <label for="nome">Nome:</label>
+            <input type="text" class="form-control mx-2" name="nome" value="<?php echo $artista['nome']; ?>" required>
+        </div>
+        <div class="form-group">
+            <label for="especialidade">Especialidade:</label>
+            <input type="text" class="form-control mx-2" name="especialidade" value="<?php echo $artista['especialidade']; ?>" required>
+        </div>
+        <div class="form-group">
+            <label for="portfolio">Portfolio:</label>
+            <input type="text" class="form-control mx-2" name="portfolio" value="<?php echo $artista['portfolio']; ?>" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Salvar</button>
+    </form>
+    <?php } ?>
+</div>
 
 <?php include 'rodape.html'; ?>

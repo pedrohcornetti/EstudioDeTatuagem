@@ -16,7 +16,7 @@ function conectar() {
     return $conn;
 }
 
-// Funções para gerenciamento de clientes
+// Funções para Gerenciamento de Clientes
 function getClientes($conn) {
     $sql = "SELECT * FROM clientes";
     $result = $conn->query($sql);
@@ -49,13 +49,32 @@ function updateCliente($conn, $id, $nome, $telefone, $email) {
 }
 
 function deleteCliente($conn, $id) {
+    // Excluir sessões associadas ao cliente
+    $sql = "DELETE FROM sessoes WHERE cliente_id = ?";
+    $stmt = $conn->prepare($sql);
+    if ($stmt === false) {
+        die("Erro na preparação da consulta para excluir sessões: " . $conn->error);
+    }
+    $stmt->bind_param("i", $id);
+    if ($stmt->execute() === false) {
+        die("Erro na execução da consulta para excluir sessões: " . $stmt->error);
+    }
+
+    // Excluir cliente
     $sql = "DELETE FROM clientes WHERE id = ?";
     $stmt = $conn->prepare($sql);
+    if ($stmt === false) {
+        die("Erro na preparação da consulta para excluir cliente: " . $conn->error);
+    }
     $stmt->bind_param("i", $id);
-    return $stmt->execute();
+    if ($stmt->execute() === false) {
+        die("Erro na execução da consulta para excluir cliente: " . $stmt->error);
+    }
+
+    return true;
 }
 
-// Funções para gerenciamento de artistas
+// Funções para Gerenciamento de Artistas
 function getArtistas($conn) {
     $sql = "SELECT * FROM artistas";
     $result = $conn->query($sql);
@@ -90,11 +109,14 @@ function updateArtista($conn, $id, $nome, $especialidade, $portfolio) {
 function deleteArtista($conn, $id) {
     $sql = "DELETE FROM artistas WHERE id = ?";
     $stmt = $conn->prepare($sql);
+    if ($stmt === false) {
+        die("Erro na preparação da consulta: " . $conn->error);
+    }
     $stmt->bind_param("i", $id);
     return $stmt->execute();
 }
 
-// Funções para gerenciamento de sessões
+// Funções para Gerenciamento de Sessões
 function getSessoes($conn) {
     $sql = "SELECT * FROM sessoes";
     $result = $conn->query($sql);
@@ -129,45 +151,9 @@ function updateSessao($conn, $id, $cliente_id, $data, $hora) {
 function deleteSessao($conn, $id) {
     $sql = "DELETE FROM sessoes WHERE id = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("i", $id);
-    return $stmt->execute();
-}
-
-// Funções para gerenciamento de desenhos
-function getDesenhos($conn) {
-    $sql = "SELECT * FROM desenhos";
-    $result = $conn->query($sql);
-    if ($result === false) {
-        die("Erro na consulta SQL: " . $conn->error);
+    if ($stmt === false) {
+        die("Erro na preparação da consulta: " . $conn->error);
     }
-    return $result->fetch_all(MYSQLI_ASSOC);
-}
-
-function addDesenho($conn, $sessao_id, $nome, $descricao) {
-    $sql = "INSERT INTO desenhos (sessao_id, nome, descricao) VALUES (?, ?, ?)";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("iss", $sessao_id, $nome, $descricao);
-    return $stmt->execute();
-}
-
-function getDesenho($conn, $id) {
-    $sql = "SELECT * FROM desenhos WHERE id = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("i", $id);
-    $stmt->execute();
-    return $stmt->get_result()->fetch_assoc();
-}
-
-function updateDesenho($conn, $id, $sessao_id, $nome, $descricao) {
-    $sql = "UPDATE desenhos SET sessao_id = ?, nome = ?, descricao = ? WHERE id = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("issi", $sessao_id, $nome, $descricao, $id);
-    return $stmt->execute();
-}
-
-function deleteDesenho($conn, $id) {
-    $sql = "DELETE FROM desenhos WHERE id = ?";
-    $stmt = $conn->prepare($sql);
     $stmt->bind_param("i", $id);
     return $stmt->execute();
 }
