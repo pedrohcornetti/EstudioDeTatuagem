@@ -7,154 +7,184 @@ define('DB_DATABASE', 'estudio_tatuagem');
 
 // Função para conectar ao banco de dados
 function conectar() {
-    $conn = new mysqli(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_DATABASE);
-    
-    if ($conn->connect_error) {
-        die("Conexão falhou: " . $conn->connect_error);
+    try {
+        $conn = new PDO("mysql:host=" . DB_SERVER . ";dbname=" . DB_DATABASE, DB_USERNAME, DB_PASSWORD);
+        $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        return $conn;
+    } catch (PDOException $e) {
+        die("Conexão falhou: " . $e->getMessage());
     }
-    
-    return $conn;
 }
 
 // Funções para Gerenciamento de Clientes
 function getClientes($conn) {
     $sql = "SELECT * FROM clientes";
-    $result = $conn->query($sql);
-    if ($result === false) {
-        die("Erro na consulta SQL: " . $conn->error);
+    try {
+        $stmt = $conn->query($sql);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        die("Erro na consulta SQL: " . $e->getMessage());
     }
-    return $result->fetch_all(MYSQLI_ASSOC);
 }
 
 function addCliente($conn, $nome, $telefone, $email) {
     $sql = "INSERT INTO clientes (nome, telefone, email) VALUES (?, ?, ?)";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sss", $nome, $telefone, $email);
-    return $stmt->execute();
+    try {
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([$nome, $telefone, $email]);
+        return true;
+    } catch (PDOException $e) {
+        die("Erro ao adicionar cliente: " . $e->getMessage());
+    }
 }
 
 function getCliente($conn, $id) {
     $sql = "SELECT * FROM clientes WHERE id = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("i", $id);
-    $stmt->execute();
-    return $stmt->get_result()->fetch_assoc();
+    try {
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([$id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        die("Erro na consulta SQL: " . $e->getMessage());
+    }
 }
 
 function updateCliente($conn, $id, $nome, $telefone, $email) {
     $sql = "UPDATE clientes SET nome = ?, telefone = ?, email = ? WHERE id = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sssi", $nome, $telefone, $email, $id);
-    return $stmt->execute();
+    try {
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([$nome, $telefone, $email, $id]);
+        return true;
+    } catch (PDOException $e) {
+        die("Erro ao atualizar cliente: " . $e->getMessage());
+    }
 }
 
 function deleteCliente($conn, $id) {
     // Excluir sessões associadas ao cliente
     $sql = "DELETE FROM sessoes WHERE cliente_id = ?";
-    $stmt = $conn->prepare($sql);
-    if ($stmt === false) {
-        die("Erro na preparação da consulta para excluir sessões: " . $conn->error);
-    }
-    $stmt->bind_param("i", $id);
-    if ($stmt->execute() === false) {
-        die("Erro na execução da consulta para excluir sessões: " . $stmt->error);
-    }
+    try {
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([$id]);
 
-    // Excluir cliente
-    $sql = "DELETE FROM clientes WHERE id = ?";
-    $stmt = $conn->prepare($sql);
-    if ($stmt === false) {
-        die("Erro na preparação da consulta para excluir cliente: " . $conn->error);
-    }
-    $stmt->bind_param("i", $id);
-    if ($stmt->execute() === false) {
-        die("Erro na execução da consulta para excluir cliente: " . $stmt->error);
-    }
+        // Excluir cliente
+        $sql = "DELETE FROM clientes WHERE id = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([$id]);
 
-    return true;
+        return true;
+    } catch (PDOException $e) {
+        die("Erro ao excluir cliente: " . $e->getMessage());
+    }
 }
 
 // Funções para Gerenciamento de Artistas
 function getArtistas($conn) {
     $sql = "SELECT * FROM artistas";
-    $result = $conn->query($sql);
-    if ($result === false) {
-        die("Erro na consulta SQL: " . $conn->error);
+    try {
+        $stmt = $conn->query($sql);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        die("Erro na consulta SQL: " . $e->getMessage());
     }
-    return $result->fetch_all(MYSQLI_ASSOC);
 }
 
 function addArtista($conn, $nome, $especialidade, $portfolio) {
     $sql = "INSERT INTO artistas (nome, especialidade, portfolio) VALUES (?, ?, ?)";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sss", $nome, $especialidade, $portfolio);
-    return $stmt->execute();
+    try {
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([$nome, $especialidade, $portfolio]);
+        return true;
+    } catch (PDOException $e) {
+        die("Erro ao adicionar artista: " . $e->getMessage());
+    }
 }
 
 function getArtista($conn, $id) {
     $sql = "SELECT * FROM artistas WHERE id = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("i", $id);
-    $stmt->execute();
-    return $stmt->get_result()->fetch_assoc();
+    try {
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([$id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        die("Erro na consulta SQL: " . $e->getMessage());
+    }
 }
 
 function updateArtista($conn, $id, $nome, $especialidade, $portfolio) {
     $sql = "UPDATE artistas SET nome = ?, especialidade = ?, portfolio = ? WHERE id = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sssi", $nome, $especialidade, $portfolio, $id);
-    return $stmt->execute();
+    try {
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([$nome, $especialidade, $portfolio, $id]);
+        return true;
+    } catch (PDOException $e) {
+        die("Erro ao atualizar artista: " . $e->getMessage());
+    }
 }
 
 function deleteArtista($conn, $id) {
     $sql = "DELETE FROM artistas WHERE id = ?";
-    $stmt = $conn->prepare($sql);
-    if ($stmt === false) {
-        die("Erro na preparação da consulta: " . $conn->error);
+    try {
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([$id]);
+        return true;
+    } catch (PDOException $e) {
+        die("Erro ao excluir artista: " . $e->getMessage());
     }
-    $stmt->bind_param("i", $id);
-    return $stmt->execute();
 }
 
 // Funções para Gerenciamento de Sessões
 function getSessoes($conn) {
     $sql = "SELECT * FROM sessoes";
-    $result = $conn->query($sql);
-    if ($result === false) {
-        die("Erro na consulta SQL: " . $conn->error);
+    try {
+        $stmt = $conn->query($sql);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        die("Erro na consulta SQL: " . $e->getMessage());
     }
-    return $result->fetch_all(MYSQLI_ASSOC);
 }
 
 function addSessao($conn, $cliente_id, $data, $hora) {
     $sql = "INSERT INTO sessoes (cliente_id, data, hora) VALUES (?, ?, ?)";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("iss", $cliente_id, $data, $hora);
-    return $stmt->execute();
+    try {
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([$cliente_id, $data, $hora]);
+        return true;
+    } catch (PDOException $e) {
+        die("Erro ao adicionar sessão: " . $e->getMessage());
+    }
 }
 
 function getSessao($conn, $id) {
     $sql = "SELECT * FROM sessoes WHERE id = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("i", $id);
-    $stmt->execute();
-    return $stmt->get_result()->fetch_assoc();
+    try {
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([$id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        die("Erro na consulta SQL: " . $e->getMessage());
+    }
 }
 
 function updateSessao($conn, $id, $cliente_id, $data, $hora) {
     $sql = "UPDATE sessoes SET cliente_id = ?, data = ?, hora = ? WHERE id = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("issi", $cliente_id, $data, $hora, $id);
-    return $stmt->execute();
+    try {
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([$cliente_id, $data, $hora, $id]);
+        return true;
+    } catch (PDOException $e) {
+        die("Erro ao atualizar sessão: " . $e->getMessage());
+    }
 }
 
 function deleteSessao($conn, $id) {
     $sql = "DELETE FROM sessoes WHERE id = ?";
-    $stmt = $conn->prepare($sql);
-    if ($stmt === false) {
-        die("Erro na preparação da consulta: " . $conn->error);
+    try {
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([$id]);
+        return true;
+    } catch (PDOException $e) {
+        die("Erro ao excluir sessão: " . $e->getMessage());
     }
-    $stmt->bind_param("i", $id);
-    return $stmt->execute();
 }
 ?>
